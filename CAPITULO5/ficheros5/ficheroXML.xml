@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+
+<libro-direcciones>
+ <nombre>primero pepe</nombre>
+ <telefono>1238759</telefono>
+ <direccion type="postal">40100, region, estado</direccion>
+ <direccion type="calle">avenida, patio,puerta</direccion>
+</libro-direcciones>
