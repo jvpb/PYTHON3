@@ -1,0 +1,63 @@
+#!/usr/bin/env python3
+'''procesos y distribucion'''
+
+# importar modulo
+
+import sys # importa el modulo indicado
+
+print ('VERSION en uso de PYTHON \n')
+
+print (sys.version,'\n')
+
+print ('¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬\n')
+
+print ('uso de multiprocesos -multiprocesos hijos- ; def multiprocesosHIJOS () : \n')
+
+def multiprocesosHIJOS () : # definicion de la funcion
+	tamañoBLOQUE = 8000 # tamaño del bloque en bytes
+	argumento = '{0}: '.format (sys.argv[1]) if len (sys.argv) == 2 else '' # condicion , si el numero de argumentos puestos en la linea es dos , devuelve la cadena formateada con el primer argumento , si no una cadena vacia
+	listaDEargumentos = sys.stdin.readline ().rstrip () # devuelve los argumentos de la linea en una lista , empezando por la derecha
+	for nombreFichero in sys.stdin : # iterador , bucle for in , pasa las lineas de entrada standard a nombreFichero
+		nombreFichero = nombreFichero.rstrip () # devuelve los argumentos de la linea en una lista , empezando por la derecha
+		previo = '' # asigna una cadena vacia
+		try : # control de excepciones
+			with open (nombreFichero,'rb') as lecturaBINARIA : # abre y cierra el fichero indicado en modo lectura binaria , enlazado como lecturaBINARIA
+				while True : # bucle while mientras se cumpla la condicion
+					bloqueACTUAL = lecturaBINARIA.read (tamañoBLOQUE) # devuelve una cadena del tamaño indicado -8000 bytes- del fichero que enlaza el objeto
+					if not bloqueACTUAL : # condicion , si es una cadena vacia
+						break # interrumpe el bucle while
+					descodificarBLOQUE = bloqueACTUAL.decode ('utf8','ignore') # convierte el bloque de texto a utf8
+					if (listaDEargumentos in descodificarBLOQUE or listaDEargumentos in previo [-len(listaDEargumentos) : ] + descodificarBLOQUE [ : len (listaDEargumentos)]) : # condicion , si se cumple una de las dos condiciones
+						print ('{0} {1}'.format (argumento,nombreFichero)) # presenta la cadena formateada -argumento de la linea y nombreFichero-
+						break # interrumpe el bucle while
+					if len (descodificarBLOQUE) != tamañoBLOQUE : # condicion , si el tamaño del bloque leido es distinto del tamaño indicado
+						break # interrumpe el bucle while
+					previo = descodificarBLOQUE # asigna el bloque codificado en utf8
+		except EnvironmentError as error : # tipo de excepcione , pasa la salida a error
+			print ('{0} : {1}'.format (argumento,error)) # presenta la cadena  formateada con el argumento y la salida de error
+	
+print ('uso de multiprocesos -proceso principal padre- ; def procesoPADRE (palabra,*listaficheros) : \n')
+
+def procesoPADRE (palabra,*listaficheros) : # definicion de la funcion
+	import subprocess # importa el modulo indicado
+	hijo = multiprocesosHIJOS # asigna la funcion hijo que genera los multiprocesos
+	listaFICHEROS = listaficheros # asigna la tupla de ficheros a procesar
+	procesosPorFICHEROS = len (listaFICHEROS) # asigna el numero de ficheros a procesar
+	INICIO = 0  # asigna el valor de inicio
+	FINAL = procesosPorFICHEROS # asigna el valor final 
+	numeroDEproceso = 1 # asigna el valor del proceso -numero-
+	listaSUBPROCESOS = [] # asigna una lista vacia
+	while INICIO < procesosPorFICHEROS : # bucle while mientras se cumpla la condicion -mientras el valor de inicio sea menor que procesosPorFICHEROS-
+		subproceso = subprocess.Popen (hijo,stdin=subprocess.PIPE) # almacena el argumento de COMANDO y la entrada standard in -stdin- y lo asigna al subproceso
+		listaSUBPROCESOS.append (subproceso) # añade el proceso en espera a la lista
+		subproceso.stdin.write (palabra.encode ('utf8') + b'\n') # escribe en la entrada standard la cadena en formato unicode -utf8- y lo almacena en subproceso
+		for nombreFichero in listaFICHEROS [INICIO : FINAL] : # iterador , bucle for in , pasa los nombres de ficheros de la tupla a nombreFichero -desde el indice indicado en INICIO hasta FINAL-
+			subproceso.stdin.write (nombreFichero.encode ('utf8') + b'\n') # escribe en la entrada standard la cadena en formato unicode -utf8- mas el salto de linea y lo almacena en subproceso
+		subproceso.stdin.close () # cierra la entrada standard del subproceso -no se puede escribir nada mas en stdin-
+		numeroDEproceso += 1 # asignacion aumentada -suma uno al valor actual-
+		INICIO = FINAL # asigna el valor de FINAL
+		FINAL = FINAL + procesosPorFICHEROS # asigna el nuevo valor 
+	while listaSUBPROCESOS : # bucle while mientras se cumpla la condicion -hasta que finalice el iterador-
+		subproceso = listaSUBPROCESOS.pop () # elimina un subproceso de la lista y lo devuelve -se asigna el subproceso eliminado de la lista-
+		subproceso.wait () # espera a que se termine de ejecutar el subproceso hijo
+		
