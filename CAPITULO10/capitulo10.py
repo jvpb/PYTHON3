@@ -34,7 +34,7 @@ class CLIENTE (object) : # definicion de la clase
 		def __enter__ (self) : # definicion metodo especial 
 			self.conectar = socket.socket (socket.AF_INET,socket.SOCK_STREAM) # crea el objeto socket con los protocolos indicados -protocolo IPv4 y protocolo TCP-
 			self.conectar.connect (('localhost',9653)) # conecta en la ip de localhost en el puerto 9653
-			return self.conecta # devuelve el objeto socket -la conexion al servidor-
+			return self.conectar # devuelve el objeto socket -la conexion al servidor-
 		
 		def __exit__ (self) : # definicion metodo especial
 			self.conectar.close () # cierra la conexion con el servidor -cierra el puerto-
