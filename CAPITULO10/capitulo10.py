@@ -173,7 +173,7 @@ class SERVIDOR (object) : # definicion de la clase
 			tamañoStructura = struct.Struct ('!I') # asigna un valor sin signo en bytes para el tamaño de lectura y escritura binario del objeto devuelto
 			tamañoDatos = self.rfile.read (tamañoStructura.size) # lee los datos que vienen del cliente por el objeto fichero
 			tamaño = tamañoStructura.unpack (tamañoDatos) [0] # desempaqueta los datos del formato struct y asigna el valor de la posicion 0
-			datos = pickle.loads (self.rfile.read (size)) # devuelve los datos serializados en formato pickle leidos del cliente por el objeto fichero
+			datos = pickle.loads (self.rfile.read (tamaño)) # devuelve los datos serializados en formato pickle leidos del cliente por el objeto fichero
 			try : # control de excepciones
 				with self.bloquearLLamada : # abre y cierra el canal -thread- con los datos 
 					funcion = llamada [datos [0]] # asigna la funcion correspondiente a la clave del diccionario
